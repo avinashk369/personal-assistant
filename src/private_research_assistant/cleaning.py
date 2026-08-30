@@ -11,6 +11,18 @@ _NOISE_LINE = re.compile(
 )
 _FOOTER_HEADING = re.compile(r"^#{1,6}\s+(\[?(Table of Contents|This page|Navigation)\]?).*$", re.IGNORECASE)
 _READTHEDOCS_FLYOUT = re.compile(r"On Read the Docs", re.IGNORECASE)
+_MARKDOWN_LINK = re.compile(r"\[([^\]]*)\]\([^)]*\)")
+
+
+def strip_markdown_links(text: str) -> str:
+    """Replace `[label](url)` with `label`, discarding the URL.
+
+    A URL is full of periods (domain segments, paths) that a naive sentence
+    splitter mistakes for sentence endings; run this before splitting markdown
+    prose into sentences or claims. A bare citation marker like `[3]` has no
+    trailing `(...)` and is left untouched.
+    """
+    return _MARKDOWN_LINK.sub(r"\1", text)
 
 
 def clean_markdown(markdown: str) -> str:

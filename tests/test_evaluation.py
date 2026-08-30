@@ -13,6 +13,24 @@ def test_unsupported_claim_is_not_faithful():
     assert not is_faithful(answer)
 
 
+def test_filename_period_is_not_mistaken_for_a_sentence_end():
+    """A dotted filename or version number ("pyproject.toml", "pip 20.0") must
+    not fragment one real, cited sentence into citation-less pieces that each
+    fail below -- see ResearchAssistant.ask / _CLAIM."""
+    source_text = "The pyproject.toml file tells pip 20.0 which backend to use."
+    answer = Answer("The pyproject.toml file tells pip 20.0 which backend to use. [1]", (Source(1, source_text, {}),))
+    assert is_faithful(answer)
+
+
+def test_markdown_link_url_is_not_mistaken_for_a_sentence_end():
+    source_text = "Use [pip](https://packaging.python.org/en/latest/key_projects/#pip) to install packages."
+    answer = Answer(
+        "Use [pip](https://packaging.python.org/en/latest/key_projects/#pip) to install packages. [1]",
+        (Source(1, source_text, {}),),
+    )
+    assert is_faithful(answer)
+
+
 def test_adversarial_question_requires_exact_abstention():
     result = evaluate_sample({"id": 8, "type": "out_of_bounds", "question": "Who invented Python?"}, Answer(ABSTENTION_TEXT, ()))
     assert result.passed

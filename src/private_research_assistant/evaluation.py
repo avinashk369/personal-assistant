@@ -6,10 +6,15 @@ import re
 from collections.abc import Sequence
 from dataclasses import asdict, dataclass
 
+from private_research_assistant.cleaning import strip_markdown_links
 from private_research_assistant.types import ABSTENTION_TEXT, Answer
 
 _CITATION = re.compile(r"\[(\d+)\]")
-_CLAIM = re.compile(r"[^.!?]+[.!?](?:\s*\[\d+\])*|[^.!?]+$")
+# The lookahead requires whitespace (or end of string) after the terminal mark,
+# so a period embedded in a filename or version number ("pyproject.toml",
+# "pip 20.0") is not mistaken for a sentence end; `_best_evidence` in query.py
+# relies on the same requirement for the same reason.
+_CLAIM = re.compile(r"[^.!?]+[.!?](?=\s|$)(?:\s*\[\d+\])*|[^.!?]+$")
 _WORD = re.compile(r"[a-zA-Z][a-zA-Z0-9_-]+")
 _STOP_WORDS = frozenset("a an and are as at be based by do for from how in is it of on or that the this to what when where which who with".split())
 
@@ -57,7 +62,10 @@ def is_faithful(answer: Answer) -> bool:
     This reproducible heuristic is intentionally conservative; it is not a semantic
     proof and should complement human review for higher-stakes work.
     """
-    claims = [claim.strip() for claim in _CLAIM.findall(answer.text) if claim.strip()]
+    # Strip markdown links first: a raw URL's periods (domain segments, paths)
+    # would otherwise look like sentence endings and fragment one real, cited
+    # sentence into several citation-less "claims" that each fail below.
+    claims = [claim.strip() for claim in _CLAIM.findall(strip_markdown_links(answer.text)) if claim.strip()]
     if not claims:
         return False
     source_by_number = {source.number: source for source in answer.sources}
@@ -66,7 +74,9 @@ def is_faithful(answer: Answer) -> bool:
         if not cited or not cited <= source_by_number.keys():
             return False
         claim_words = _words(_CITATION.sub("", claim))
-        evidence_words = set().union(*(_words(source_by_number[number].text) for number in cited))
+        evidence_words = set().union(
+            *(_words(strip_markdown_links(source_by_number[number].text)) for number in cited)
+        )
         shared_words = claim_words & evidence_words
         # Two supported terms protect against one-word topical coincidences, while
         # 30% overlap accepts concise paraphrases from small local models.

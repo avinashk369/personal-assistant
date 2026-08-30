@@ -6,6 +6,7 @@ import re
 
 from llama_index.core import VectorStoreIndex
 
+from private_research_assistant.cleaning import strip_markdown_links
 from private_research_assistant.config import Settings
 from private_research_assistant.evaluation import citation_precision, is_faithful
 from private_research_assistant.models import build_embedding_model, build_llm
@@ -36,7 +37,9 @@ def _best_evidence(question: str, sources: tuple[Source, ...]) -> list[tuple[flo
     question_words = _content_words(question)
     candidates: list[tuple[float, int, str]] = []
     for source in sources:
-        for sentence in re.split(r"(?<=[.!?])\s+", source.text):
+        # Strip markdown links first: a raw URL's periods would otherwise
+        # fragment one real sentence into several meaningless pieces.
+        for sentence in re.split(r"(?<=[.!?])\s+", strip_markdown_links(source.text)):
             sentence = sentence.strip()
             # A "sentence" longer than this has no terminal punctuation nearby
             # (a code block or link list, most likely) and is not real prose.
