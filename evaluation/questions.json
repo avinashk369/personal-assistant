@@ -1,0 +1,12 @@
+[
+  {"id": 1, "type": "in_bounds", "expected_terms": ["pip install", "install a package"], "question": "How can a user install a Python package with pip?"},
+  {"id": 2, "type": "in_bounds", "expected_terms": ["pyproject.toml", "build system"], "question": "What is the purpose of pyproject.toml in a Python project?"},
+  {"id": 3, "type": "in_bounds", "expected_terms": ["pip install", "install packages"], "question": "What does pip install do?"},
+  {"id": 4, "type": "in_bounds", "expected_terms": ["package", "module"], "question": "How are Python modules organized into packages?"},
+  {"id": 5, "type": "in_bounds", "expected_terms": ["pyproject.toml", "readme"], "question": "Which files are used when packaging a Python project?"},
+  {"id": 6, "type": "in_bounds", "expected_terms": ["src", "source code"], "question": "Where does the packaging tutorial place project source code?"},
+  {"id": 7, "type": "in_bounds", "expected_terms": ["setuptools", "build backend"], "question": "Which build backend does the packaging tutorial use?"},
+  {"id": 8, "type": "out_of_bounds", "question": "Who invented Python?"},
+  {"id": 9, "type": "out_of_bounds", "question": "What is Rust?"},
+  {"id": 10, "type": "out_of_bounds", "question": "Explain Kubernetes."}
+]

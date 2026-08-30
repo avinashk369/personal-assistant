@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "private-research-assistant"
+version = "0.1.0"
+description = "A read-only, local research assistant built with LlamaIndex, Ollama, and Chroma."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "chromadb>=1.0",
+  "firecrawl-py>=4.0",
+  "llama-index-core>=0.12",
+  "llama-index-embeddings-ollama>=0.5",
+  "llama-index-llms-ollama>=0.5",
+  "llama-index-vector-stores-chroma>=0.4",
+  "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "ruff>=0.8"]
+
+[project.scripts]
+research-collect = "private_research_assistant.cli.collect:main"
+research-ingest = "private_research_assistant.cli.ingest:main"
+research-query = "private_research_assistant.cli.query:main"
+research-evaluate = "private_research_assistant.cli.evaluate:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

@@ -1,0 +1,10 @@
+.env
+.pytest_cache/
+__pycache__/
+**/__pycache__/
+venv/
+*.egg-info/
+storage/
+data/*.md
+data/sources.json
+evaluation/results.json
