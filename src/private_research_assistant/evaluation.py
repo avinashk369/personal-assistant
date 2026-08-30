@@ -42,6 +42,22 @@ def _words(text: str) -> set[str]:
     return {word.lower() for word in _WORD.findall(text) if word.lower() not in _STOP_WORDS}
 
 
+def _singularize(word: str) -> str:
+    """Fold a simple trailing-"s" plural to its singular form.
+
+    Retrieved evidence is quoted verbatim, so it may say "modules" where a
+    curated expected term says "module"; a real answer should not fail
+    relevance over that alone. This is deliberately minimal (real morphology
+    is out of scope for a small deterministic checker) and only strips words
+    long enough that a stray "s" is unlikely to be part of the root itself.
+    """
+    return word[:-1] if len(word) > 3 and word.endswith("s") else word
+
+
+def _normalized_words(text: str) -> set[str]:
+    return {_singularize(word) for word in _words(text)}
+
+
 def citation_precision(answer: Answer) -> bool:
     numbers = citation_numbers(answer.text)
     return bool(numbers) and all(1 <= number <= len(answer.sources) for number in numbers)
@@ -52,8 +68,8 @@ def is_relevant(sample: dict, answer: Answer) -> bool:
     expected_terms = sample.get("expected_terms", [])
     if not expected_terms:
         return True
-    answer_words = _words(answer.text)
-    return any(set(_words(term)) <= answer_words for term in expected_terms)
+    answer_words = _normalized_words(answer.text)
+    return any(_normalized_words(term) <= answer_words for term in expected_terms)
 
 
 def is_faithful(answer: Answer) -> bool:

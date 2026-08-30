@@ -1,4 +1,4 @@
-from private_research_assistant.evaluation import citation_precision, evaluate_sample, is_faithful
+from private_research_assistant.evaluation import citation_precision, evaluate_sample, is_faithful, is_relevant
 from private_research_assistant.types import ABSTENTION_TEXT, Answer, Source
 
 
@@ -20,6 +20,14 @@ def test_filename_period_is_not_mistaken_for_a_sentence_end():
     source_text = "The pyproject.toml file tells pip 20.0 which backend to use."
     answer = Answer("The pyproject.toml file tells pip 20.0 which backend to use. [1]", (Source(1, source_text, {}),))
     assert is_faithful(answer)
+
+
+def test_relevance_matches_a_plural_form_of_a_singular_expected_term():
+    """Retrieved evidence is quoted verbatim, so it may say "modules" where the
+    curated expected term says "module"; that alone must not fail relevance."""
+    answer = Answer("Python modules are grouped into packages. [1]", (Source(1, "irrelevant", {}),))
+    assert is_relevant({"expected_terms": ["module"]}, answer)
+    assert is_relevant({"expected_terms": ["package"]}, answer)
 
 
 def test_markdown_link_url_is_not_mistaken_for_a_sentence_end():
