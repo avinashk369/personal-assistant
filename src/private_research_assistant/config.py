@@ -43,6 +43,6 @@ def get_settings() -> Settings:
         retrieval_top_k=int(os.getenv("RETRIEVAL_TOP_K", "4")),
         ollama_base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
         llm_model=os.getenv("OLLAMA_LLM_MODEL", "llama3:8b"),
-        embedding_model=os.getenv("OLLAMA_EMBED_MODEL", "nomic-embed-text"),
+        embedding_model=os.getenv("OLLAMA_EMBED_MODEL", "nomic-embed-text:v1.5"),
         firecrawl_api_key=os.getenv("FIRECRAWL_API_KEY") or None,
     )
